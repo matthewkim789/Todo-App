@@ -44,7 +44,7 @@ function App() {
 
   return (
     <div style={{ maxWidth: 480, margin: '60px auto', fontFamily: 'sans-serif', textAlign: 'center' }}>
-      <h1>Todo App</h1>
+      <h1>My Todo App</h1>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, textAlign: 'left' }}>
         <input
