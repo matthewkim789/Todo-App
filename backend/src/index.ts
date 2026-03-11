@@ -13,7 +13,7 @@ app.use(clerkMiddleware());
 
 // Get all todos for the current user
 app.get('/todos', requireAuth(), async (req, res) => {
-  const { userId } = getAuth(req);
+  const { userId } = getAuth(req) as { userId: string };
   const todos = await prisma.todo.findMany({
     where: { userId },
     orderBy: { createdAt: 'asc' },
@@ -23,7 +23,7 @@ app.get('/todos', requireAuth(), async (req, res) => {
 
 // Create a todo
 app.post('/todos', requireAuth(), async (req, res) => {
-  const { userId } = getAuth(req);
+  const { userId } = getAuth(req) as { userId: string };
   const { text } = req.body;
   if (!text || typeof text !== 'string') {
     return res.status(400).json({ error: 'text is required' });
@@ -34,7 +34,7 @@ app.post('/todos', requireAuth(), async (req, res) => {
 
 // Update a todo's text
 app.put('/todos/:id', requireAuth(), async (req, res) => {
-  const { userId } = getAuth(req);
+  const { userId } = getAuth(req) as { userId: string };
   const id = parseInt(req.params.id);
   const { text } = req.body;
   if (!text || typeof text !== 'string') {
@@ -50,7 +50,7 @@ app.put('/todos/:id', requireAuth(), async (req, res) => {
 
 // Toggle a todo complete/incomplete
 app.patch('/todos/:id', requireAuth(), async (req, res) => {
-  const { userId } = getAuth(req);
+  const { userId } = getAuth(req) as { userId: string };
   const id = parseInt(req.params.id);
   try {
     const todo = await prisma.todo.findUniqueOrThrow({ where: { id, userId } });
@@ -63,7 +63,7 @@ app.patch('/todos/:id', requireAuth(), async (req, res) => {
 
 // Delete a todo
 app.delete('/todos/:id', requireAuth(), async (req, res) => {
-  const { userId } = getAuth(req);
+  const { userId } = getAuth(req) as { userId: string };
   const id = parseInt(req.params.id);
   try {
     await prisma.todo.delete({ where: { id, userId } });
