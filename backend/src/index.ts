@@ -35,7 +35,7 @@ app.post('/todos', requireAuth(), async (req, res) => {
 // Update a todo's text
 app.put('/todos/:id', requireAuth(), async (req, res) => {
   const { userId } = getAuth(req) as { userId: string };
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string);
   const { text } = req.body;
   if (!text || typeof text !== 'string') {
     return res.status(400).json({ error: 'text is required' });
@@ -51,7 +51,7 @@ app.put('/todos/:id', requireAuth(), async (req, res) => {
 // Toggle a todo complete/incomplete
 app.patch('/todos/:id', requireAuth(), async (req, res) => {
   const { userId } = getAuth(req) as { userId: string };
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string);
   try {
     const todo = await prisma.todo.findUniqueOrThrow({ where: { id, userId } });
     const updated = await prisma.todo.update({ where: { id }, data: { completed: !todo.completed } });
@@ -64,7 +64,7 @@ app.patch('/todos/:id', requireAuth(), async (req, res) => {
 // Delete a todo
 app.delete('/todos/:id', requireAuth(), async (req, res) => {
   const { userId } = getAuth(req) as { userId: string };
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string);
   try {
     await prisma.todo.delete({ where: { id, userId } });
     res.status(204).send();
