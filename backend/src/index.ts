@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
+import { clerkMiddleware, requireAuth } from '@clerk/express';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -8,32 +9,39 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+app.use(clerkMiddleware());
 
-// Get all todos
-app.get('/todos', async (req, res) => {
-  const todos = await prisma.todo.findMany({ orderBy: { createdAt: 'asc' } });
+// Get all todos for the current user
+app.get('/todos', requireAuth(), async (req, res) => {
+  const userId = req.auth.userId;
+  const todos = await prisma.todo.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'asc' },
+  });
   res.json(todos);
 });
 
 // Create a todo
-app.post('/todos', async (req, res) => {
+app.post('/todos', requireAuth(), async (req, res) => {
+  const userId = req.auth.userId;
   const { text } = req.body;
   if (!text || typeof text !== 'string') {
     return res.status(400).json({ error: 'text is required' });
   }
-  const todo = await prisma.todo.create({ data: { text } });
+  const todo = await prisma.todo.create({ data: { text, userId } });
   res.status(201).json(todo);
 });
 
 // Update a todo's text
-app.put('/todos/:id', async (req, res) => {
+app.put('/todos/:id', requireAuth(), async (req, res) => {
+  const userId = req.auth.userId;
   const id = parseInt(req.params.id);
   const { text } = req.body;
   if (!text || typeof text !== 'string') {
     return res.status(400).json({ error: 'text is required' });
   }
   try {
-    const todo = await prisma.todo.update({ where: { id }, data: { text } });
+    const todo = await prisma.todo.update({ where: { id, userId }, data: { text } });
     res.json(todo);
   } catch {
     res.status(404).json({ error: 'Not found' });
@@ -41,10 +49,11 @@ app.put('/todos/:id', async (req, res) => {
 });
 
 // Toggle a todo complete/incomplete
-app.patch('/todos/:id', async (req, res) => {
+app.patch('/todos/:id', requireAuth(), async (req, res) => {
+  const userId = req.auth.userId;
   const id = parseInt(req.params.id);
   try {
-    const todo = await prisma.todo.findUniqueOrThrow({ where: { id } });
+    const todo = await prisma.todo.findUniqueOrThrow({ where: { id, userId } });
     const updated = await prisma.todo.update({ where: { id }, data: { completed: !todo.completed } });
     res.json(updated);
   } catch {
@@ -53,10 +62,11 @@ app.patch('/todos/:id', async (req, res) => {
 });
 
 // Delete a todo
-app.delete('/todos/:id', async (req, res) => {
+app.delete('/todos/:id', requireAuth(), async (req, res) => {
+  const userId = req.auth.userId;
   const id = parseInt(req.params.id);
   try {
-    await prisma.todo.delete({ where: { id } });
+    await prisma.todo.delete({ where: { id, userId } });
     res.status(204).send();
   } catch {
     res.status(404).json({ error: 'Not found' });

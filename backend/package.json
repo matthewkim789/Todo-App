@@ -9,6 +9,7 @@
     "migrate": "prisma migrate deploy"
   },
   "dependencies": {
+    "@clerk/express": "^2.0.4",
     "@prisma/client": "^6.19.2",
     "cors": "^2.8.6",
     "express": "^5.2.1",
