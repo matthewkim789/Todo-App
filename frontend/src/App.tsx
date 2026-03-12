@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from '@clerk/react';
+import { SignedIn, SignedOut, SignInButton, UserButton, useAuth } from '@clerk/clerk-react';
 
 const API = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
